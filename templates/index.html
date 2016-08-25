@@ -2,17 +2,94 @@
 <html>
     <head>
         <title>The Drawing Game</title>
+        <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.1.3/css/bootstrap-slider.min.css">
         <style>
-        body {background-color: powderblue;}
-        h1   {color: blue;}
-        p    {color: red;}
+            canvas {
+                border: 2px solid black;
+            }
+            .tool-button {
+                height: 40px;
+            }
+            #color-picker {
+                width: 75px;
+            }
+
+            .paint {
+                float: none;
+            }
         </style>
     </head>
-<body>
+    <body>
+        <div class="container">
+            <div class="row">
+                <h1 class="text-center">The Drawing Game</h1>
+            </div>
+            <br />
+            <center>
+                <div class="paint center-block">
+                    <div id="canvas-tools">
+                        <label for="color-picker"><i class="fa fa-pencil" id="color-picker-label" aria-hidden="true"></i></label>
+                        <input name="color" class="jscolor btn tool-button" id="color-picker" onchange="update(this.jscolor)" value="000000"></input>
+                        <input
+                            type="text"
+                            id="pen-size"
+                            data-provide="slider"
+                            data-slider-min="1"
+                            data-slider-max="15"
+                            data-slider-step="1"
+                            data-slider-value="3"
+                            data-slider-tooltip="hide"
+                        >
+                        <a class="btn btn-danger tool-button" href="javascript:clearSketch()">Clear</a>
+                        <a class="btn btn-warning tool-button" href="javascript:undoSketch()">Undo</a>
+                    </div>
+                    <br />
+                    <canvas id="canvas" height="400" width="400"></canvas>
+                </div>
+            </center>
 
-<h1>This is a heading</h1>
-<p>This is a paragraph.</p>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jscolor/2.0.4/jscolor.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.1.3/bootstrap-slider.min.js"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/sketch.min.js') }}"></script>
+        <script>
+            function update(jscolor) {
+                // 'jscolor' instance can be used as a string
+                $('#canvas').sketch('color', '#' + jscolor);
+                console.log('color: ' + jscolor);
+                document.getElementById('color-picker').jscolor.hide();
+{#                $('#color-picker-label').css('color', '#' + jscolor);#}
+            }
 
-</body>
+            function clearSketch() {
+                $('#canvas').sketch('actions',[]);
+                $('#canvas').sketch().redraw();
+            }
+
+            function undoSketch() {
+                actions = $('#canvas').sketch('actions');
+                actions.splice(-1);
+                $('#canvas').sketch('actions', actions);
+                $('#canvas').sketch().redraw();
+            }
+
+            $('#pen-size').on('slideStop', function(value) {
+                console.log(value);
+                $('#canvas').sketch('size', value.value);
+            });
+
+            $(function() {
+                $("#pen-size").slider();
+                $.each([3, 5, 10, 15], function() {
+                    $('#canvas-tools').append("<a href='#canvas' class='btn tool-button' data-size='" + this + ">" + this + "</a> ");
+                });
+                $('#canvas').sketch();
+            });
+
+        </script>
+    </body>
 </html>
 
